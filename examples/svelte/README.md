@@ -74,12 +74,6 @@
         algorithm: "jaro-winkler",
         threshold: 0.4,
         debounceDelay: 300,
-        customMessages: {
-            tr:{
-                noMatch: "Sonuc bulunamadı my mannn",
-                suggestion: "Bunu mu diyon brother?",
-            }
-        }
     })
 
     let result = [];
