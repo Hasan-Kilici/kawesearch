@@ -114,7 +114,7 @@ You can easily extend the library to support additional languages by modifying t
 
 ### Example
 ```js
-const search = new Search(data, synonyms, {
+const search = new Search(data, synonyms, {},{
     threshold: 0.8,
     suggestOnNoMatch: true,
     suggestionThreshold: 0.5,
