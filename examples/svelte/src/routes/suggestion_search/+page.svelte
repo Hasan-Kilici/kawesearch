@@ -26,8 +26,8 @@
         gezilecek: ['gezilecek', 'mekan', 'doğa', 'tarih'],
     };
 
-    let search = new Search(PlaceData, synonyms,{
-        language: "en", 
+    let search = new Search(PlaceData, synonyms, {}, {
+        language: "tr", 
         algorithm: "levenshtein",
         threshold: 0.7,
         debounceDelay: 300,
