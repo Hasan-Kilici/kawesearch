@@ -1,0 +1,167 @@
+[
+    {
+      "id": 1,
+      "name": "Grand Hotel",
+      "type": "Oteller",
+      "location": "Istanbul",
+      "tags": [
+        "otel",
+        "lüks",
+        "tatil"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Kapadokya",
+      "type": "Gezilecek yerler",
+      "location": "Nevşehir",
+      "tags": [
+        "doğa",
+        "tarih",
+        "gezi"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Boğaz Restoran",
+      "type": "Restoranlar",
+      "location": "Ankara",
+      "tags": [
+        "yemek",
+        "restoran",
+        "manzara"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Pamukkale",
+      "type": "Gezilecek yerler",
+      "location": "Denizli",
+      "tags": [
+        "doğa",
+        "kaplıca",
+        "gezilecek"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Ankara Otel",
+      "type": "Oteller",
+      "location": "Ankara",
+      "tags": [
+        "otel",
+        "şehir",
+        "tatil"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Balıklı Göl",
+      "type": "Gezilecek yerler",
+      "location": "Urfa",
+      "tags": [
+        "tarih",
+        "kültür",
+        "göl"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Aspendos Tiyatrosu",
+      "type": "Tarihi Yerler",
+      "location": "Antalya",
+      "tags": [
+        "tarih",
+        "tiyatro",
+        "antik"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Ephesus Antik Kenti",
+      "type": "Tarihi Yerler",
+      "location": "İzmir",
+      "tags": [
+        "antik",
+        "tarih",
+        "gezilecek"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Uludağ",
+      "type": "Doğa",
+      "location": "Bursa",
+      "tags": [
+        "doğa",
+        "kış",
+        "tatil"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Çırağan Sarayı",
+      "type": "Oteller",
+      "location": "Istanbul",
+      "tags": [
+        "lüks",
+        "tatil",
+        "boğaz"
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Adalar",
+      "type": "Gezilecek yerler",
+      "location": "Istanbul",
+      "tags": [
+        "doğa",
+        "deniz",
+        "tatil"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Nemrut Dağı",
+      "type": "Tarihi Yerler",
+      "location": "Adıyaman",
+      "tags": [
+        "dağ",
+        "tarih",
+        "doğa"
+      ]
+    },
+    {
+      "id": 13,
+      "name": "Sümela Manastırı",
+      "type": "Tarihi Yerler",
+      "location": "Trabzon",
+      "tags": [
+        "manastır",
+        "tarih",
+        "doğa"
+      ]
+    },
+    {
+      "id": 14,
+      "name": "Kaş",
+      "type": "Tatiller",
+      "location": "Antalya",
+      "tags": [
+        "deniz",
+        "tatil",
+        "doğa"
+      ]
+    },
+    {
+      "id": 15,
+      "name": "İshak Paşa Sarayı",
+      "type": "Tarihi Yerler",
+      "location": "Ağrı",
+      "tags": [
+        "saray",
+        "tarih",
+        "dağ"
+      ]
+    }
+  ]
