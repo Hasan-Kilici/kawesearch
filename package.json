@@ -1,0 +1,26 @@
+{
+  "name": "kawesearch",
+  "version": "1.0.3",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "hasan-kilici",
+  "license": "MIT",
+  "description": "",
+  "keywords": [
+    "kawisearch",
+    "fuzzy-searching",
+    "fuzzy",
+    "searching",
+    "search",
+    "language support",
+    "language",
+    "support",
+    "kawi",
+    "react",
+    "vue",
+    "svelte"
+  ]
+}
