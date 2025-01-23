@@ -83,7 +83,7 @@ performSearch();
 
 You can customize the search behavior by adjusting the following options:
 
-- `algorithm`: Choose the matching algorithm (`levenshtein`, `damerau-levenshtein`, `jaro-winkler`, `soundex`, or `metaphone`).
+- `algorithm`: Choose the matching algorithm (`levenshtein`, `damerau-levenshtein`, `jaro-winkler`, `soundex`, or `metaphone`) or custom search.
 - `threshold`: Set a minimum similarity threshold (between 0 and 1) to determine if a match is valid.
 - `language`: Specify the language for search messages (e.g., `en`, `tr`, `de`, etc.).
 - `debounceDelay`: Set a delay for debouncing search input to optimize performance.
