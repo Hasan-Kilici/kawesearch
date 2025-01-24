@@ -10,6 +10,11 @@ This repository contains a fuzzy search library that provides a flexible way to 
     - Jaro-Winkler
     - Soundex
     - Metaphone (beta)
+    - jaccard similarity
+    - ngram similarity
+    - cosine similarity
+    - tf-idf similarity
+    - smith-waterman
 
 - **Synonym Support**: Handles synonyms with customizable frequency and weightings.
 - **Customizable Search Options**: Allows customization of search behavior, including algorithm choice, threshold, and more.
@@ -59,7 +64,7 @@ const synonyms = {
   Kapadokya: ["Cappadocia"],
 };
 
-const search = new Search(data, synonyms, {
+const search = new Search(data, synonyms, {}, {
   language: "en", 
   algorithm: "levenshtein",
   threshold: 0.7
@@ -83,7 +88,7 @@ performSearch();
 
 You can customize the search behavior by adjusting the following options:
 
-- `algorithm`: Choose the matching algorithm (`levenshtein`, `damerau-levenshtein`, `jaro-winkler`, `soundex`, or `metaphone`) or custom search.
+- `algorithm`: Choose the matching algorithm (`levenshtein`, `damerau-levenshtein`, `jaro-winkler`, `soundex`, or `metaphone`).
 - `threshold`: Set a minimum similarity threshold (between 0 and 1) to determine if a match is valid.
 - `language`: Specify the language for search messages (e.g., `en`, `tr`, `de`, etc.).
 - `debounceDelay`: Set a delay for debouncing search input to optimize performance.
@@ -129,6 +134,7 @@ const search = new Search(data, synonyms, {},{
     }
 });
 ```
+
 ## Contributing 
 We welcome contributions to this project! If you'd like to contribute, please fork the repository, create a branch for your changes, and submit a pull request.
 License
