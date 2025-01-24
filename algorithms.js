@@ -21,6 +21,112 @@ export function levenshtein(a, b) {
     return dp[a.length][b.length];
 }
 
+function cosineSimilarity(str1, str2) {
+  const vectorize = (str) => {
+    const freq = {};
+    for (let char of str) {
+      freq[char] = (freq[char] || 0) + 1;
+    }
+    return freq;
+  };
+
+  const dotProduct = (vec1, vec2) => {
+    return Object.keys(vec1).reduce((sum, key) => {
+      return sum + (vec1[key] * (vec2[key] || 0));
+    }, 0);
+  };
+
+  const magnitude = (vec) => {
+    return Math.sqrt(Object.values(vec).reduce((sum, val) => sum + val * val, 0));
+  };
+
+  const vec1 = vectorize(str1);
+  const vec2 = vectorize(str2);
+
+  const dot = dotProduct(vec1, vec2);
+  const mag1 = magnitude(vec1);
+  const mag2 = magnitude(vec2);
+
+  if (mag1 === 0 || mag2 === 0) return 0;
+  return dot / (mag1 * mag2);
+}
+
+function tfIdfSimilarity(str1, str2) {
+  const termFrequency = (str) => {
+    const tf = {};
+    const words = str.split(/\s+/);
+    const totalWords = words.length;
+    for (let word of words) {
+      tf[word] = (tf[word] || 0) + 1;
+    }
+    for (let word in tf) {
+      tf[word] /= totalWords;
+    }
+    return tf;
+  };
+
+  const inverseDocumentFrequency = (str1, str2) => {
+    const allWords = [...new Set(str1.split(/\s+/).concat(str2.split(/\s+/)))];
+    const idf = {};
+    for (let word of allWords) {
+      const containsInStr1 = str1.includes(word) ? 1 : 0;
+      const containsInStr2 = str2.includes(word) ? 1 : 0;
+      idf[word] = Math.log(2 / (containsInStr1 + containsInStr2));
+    }
+    return idf;
+  };
+
+  const tf1 = termFrequency(str1);
+  const tf2 = termFrequency(str2);
+  const idf = inverseDocumentFrequency(str1, str2);
+
+  let score = 0;
+  for (let word in tf1) {
+    if (idf[word]) {
+      score += tf1[word] * idf[word] * tf2[word] * idf[word];
+    }
+  }
+  return score;
+}
+
+function smithWaterman(str1, str2) {
+  const scoreMatrix = Array.from({ length: str1.length + 1 }, () =>
+    Array(str2.length + 1).fill(0)
+  );
+
+  const match = 2;
+  const mismatch = -1;
+  const gap = -1;
+
+  let maxScore = 0;
+
+  for (let i = 1; i <= str1.length; i++) {
+    for (let j = 1; j <= str2.length; j++) {
+      const matchScore = str1[i - 1] === str2[j - 1] ? match : mismatch;
+      const diagonal = scoreMatrix[i - 1][j - 1] + matchScore;
+      const left = scoreMatrix[i - 1][j] + gap;
+      const up = scoreMatrix[i][j - 1] + gap;
+
+      scoreMatrix[i][j] = Math.max(0, diagonal, left, up);
+      maxScore = Math.max(maxScore, scoreMatrix[i][j]);
+    }
+  }
+
+  return maxScore / Math.max(str1.length, str2.length);
+}
+
+const memo = {};
+
+function memoizedSimilarity(func, ...args) {
+  const key = `${func.name}:${args.join(',')}`;
+  if (memo[key] !== undefined) {
+    return memo[key];
+  }
+  const result = func(...args);
+  memo[key] = result;
+  return result;
+}
+
 export function damerauLevenshtein(a, b) {
     const dp = Array.from({ length: a.length + 1 }, () =>
       Array(b.length + 1).fill(0)
@@ -130,26 +236,72 @@ export function metaphone(word) {
     return result;
 }
 
-export function fuzzyMatch(query, word, threshold = 0.8, algorithm = "damerau-levenshtein") {
-    let similarity = 0;
-    
-    switch(algorithm) {
-        case 'levenshtein':
-            similarity = 1 - levenshtein(query, word) / Math.max(query.length, word.length);
-            break;
-        case 'damerau-levenshtein':
-            similarity = 1 - damerauLevenshtein(query, word) / Math.max(query.length, word.length);
-            break;
-        case 'jaro-winkler':
-            similarity = jaroWinkler(query, word);
-            break;
-        case 'soundex':
-            similarity = query === soundex(word) ? 1 : 0;
-            break;
-        case 'metaphone':
-            similarity = query === metaphone(word) ? 1 : 0;
-            break;
-    }
-    
-    return similarity >= threshold;
+function jaccardSimilarity(str1, str2) {
+  const set1 = new Set(str1.split(""));
+  const set2 = new Set(str2.split(""));
+  const intersection = new Set([...set1].filter(x => set2.has(x))).size;
+  const union = set1.size + set2.size - intersection;
+  return intersection / union;
+}
+
+function ngramSimilarity(str1, str2, n = 2) {
+  function getNGrams(str, n) {
+      let grams = new Set();
+      for (let i = 0; i <= str.length - n; i++) {
+          grams.add(str.substring(i, i + n));
+      }
+      return grams;
+  }
+  
+  const ngrams1 = getNGrams(str1, n);
+  const ngrams2 = getNGrams(str2, n);
+  const intersection = new Set([...ngrams1].filter(x => ngrams2.has(x))).size;
+  const union = new Set([...ngrams1, ...ngrams2]).size;
+  return intersection / union;
+}
+
+
+export function fuzzyMatch(query, word, threshold = 0.8, algorithm = "damerau-levenshtein", customParams = {}) {
+  let similarity = 0;
+
+  switch(algorithm) {
+    case 'levenshtein':
+      similarity = 1 - memoizedSimilarity(levenshtein, query, word) / Math.max(query.length, word.length);
+      break;
+    case 'damerau-levenshtein':
+      similarity = 1 - memoizedSimilarity(damerauLevenshtein, query, word) / Math.max(query.length, word.length);
+      break;
+    case 'jaro-winkler':
+      similarity = jaroWinkler(query, word);
+      break;
+    case 'soundex':
+      similarity = query === soundex(word) ? 1 : 0;
+      break;
+    case 'metaphone':
+      similarity = query === metaphone(word) ? 1 : 0;
+      break;
+    case 'jaccard':
+      similarity = jaccardSimilarity(query, word);
+      break;
+    case 'ngram':
+      similarity = ngramSimilarity(query, word, 2);
+      break;
+    case 'cosine':
+      similarity = cosineSimilarity(query, word);
+      break;
+    case 'tf-idf':
+      similarity = tfIdfSimilarity(query, word);
+      break;
+    case 'smith-waterman':
+      similarity = smithWaterman(query, word);
+      break;
+  }
+
+  if (customParams?.prefix) {
+    const prefix = customParams.prefix;
+    const commonPrefix = Math.min(query.length, word.length, prefix);
+    similarity += commonPrefix * (1 - similarity);
+  }
+
+  return similarity >= threshold;
 }
