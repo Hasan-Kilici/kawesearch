@@ -19,7 +19,7 @@
         gezilecek: ['gezilecek', 'mekan', 'doğa', 'tarih'],
     };
 
-    let search = new Search(PlaceData, synonyms,{
+    let search = new Search(PlaceData, synonyms, {},{
         language: "tr", 
         algorithm: ["jaro-winkler"],
         threshold: 0.4,
