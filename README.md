@@ -66,12 +66,12 @@ const synonyms = {
 
 const search = new Search(data, synonyms, {}, {
   language: "en", 
-  algorithm: "levenshtein",
+  algorithm: ["levenshtein", "soundex"],
   threshold: 0.7
 });
 
 async function performSearch() {
-  const query = "Cappadocia"; // This can be input from a user
+  const query = "Cappadocia";
   const results = await search.search(query);
   console.log(results);
 }
@@ -80,25 +80,33 @@ performSearch();
 ```
 ### Explanation:
 
-- Data: The data is a list of objects where each object contains a searchable field (name, tags, etc.).
-- **Synonyms**: Synonyms are provided for words that should be considered equivalent during the search. This helps in handling variations of terms like "Kapadokya" and "Cappadocia".
-- **Search Options**: Customize the search options, such as the algorithm to use and the threshold for matching.
+- ``Data``: The data is a list of objects where each object contains a searchable field (name, tags, etc.).
+- **``Synonyms``**: Synonyms are provided for words that should be considered equivalent during the search. This helps in handling variations of terms like "Kapadokya" and "Cappadocia".
+- **`Search Options`**: Customize the search options, such as the algorithm to use and the threshold for matching.
 
 ### Customizing Search Options
 
 You can customize the search behavior by adjusting the following options:
 
-- `algorithm`: Choose the matching algorithm (`levenshtein`, `damerau-levenshtein`, `jaro-winkler`, `soundex`, or `metaphone`).
-- `threshold`: Set a minimum similarity threshold (between 0 and 1) to determine if a match is valid.
-- `language`: Specify the language for search messages (e.g., `en`, `tr`, `de`, etc.).
-- `debounceDelay`: Set a delay for debouncing search input to optimize performance.
+- ``algorithm``: The algorithm(s) to use for calculating text similarity (default: ["levenshtein"]).
+- ``threshold``: The similarity threshold for results (default: 0.8).
+- ``suggestOnNoMatch``: Whether to suggest results if no exact match is found (default: true).
+- ``suggestionThreshold``: The threshold for suggestion similarity (default: 0.5).
+- ``customSearch``: A custom search function (default: null).
+- ``customMessages``: Custom messages for results (default: {}).
+- ``debounceDelay``: Delay before performing search after the last query (default: 300ms).
+- ``cacheSize``: The size of the cache for storing search results (default: 100).
+- ``timeout``: The timeout duration for search operations (default: 5000ms).
+- ``cacheTTL``: The time-to-live for cache entries (default: 60000ms).
 
 ### Methods
-- search(query): Initiates the search and returns the matching results.
-- _performSearch(query): Executes the actual search after debounce.
-- _suggest(query): Suggests alternative results if no direct match is found.
-- _match(query, word): Matches the query against a word using the selected algorithm.
-- _calculateDistance(query, word): Calculates the distance between the query and word using the chosen algorithm.
+- ``search(query)``: Initiates the search and returns the matching results.
+- ``_performSearch(query)``: Executes the actual search after debounce.
+- ``_suggest(query)``: Suggests alternative results if no direct match is found.
+- ``_match``(query, word): Matches the query against a word using the selected algorithm.`
+- ``_setToCache``(key, value): Caches a result with a specific key.
+- ``_getFromCache``(key): Retrieves a cached result by key.
+
 
 ## Languages Supported
 
@@ -133,6 +141,54 @@ const search = new Search(data, synonyms, {},{
         }
     }
 });
+```
+
+## Bechmakring
+```js
+import Search from "./index.js";
+
+const keywords = Array.from({ length: 1000000 }, (_, i) => ({
+    name: `keyword${i + 1}`,
+    id: i + 1
+}));
+
+const synonyms = keywords.reduce((acc, keyword) => {
+    acc[keyword.name] = [`${keyword.name}Synonym1`, `${keyword.name}Synonym2`, `${keyword.name}Synonym3`];
+    return acc;
+}, {});
+
+const search = new Search(keywords, synonyms, {}, {
+    language: "en", 
+    algorithm: ["levenshtein"],
+    threshold: 0.6,
+    timeout: 200,
+    debounceDelay: 1,
+});
+
+async function benchmarkSearch(query) {
+    const start = process.hrtime();
+    const results = await search.search(query);
+    const end = process.hrtime(start);
+
+    const timeInMs = (end[0] * 1e9 + end[1]) / 1e6;
+    console.log(`Search for "${query}" took ${Math.floor(timeInMs.toFixed(3))} ms and take ${results.length} results`);
+
+    return timeInMs;
+}
+
+async function performBenchmark() {
+    const query = "keyword99";
+    
+    const time = await benchmarkSearch(query);
+    console.log(`Search time for "${query}": ${time.toFixed(3)} ms`); 
+}
+
+performBenchmark();
+```
+Result 
+```
+Search for "keyword99" took 78 ms and take 11111 results
+Search time for "keyword99": 78.690 ms
 ```
 
 ## Contributing 
