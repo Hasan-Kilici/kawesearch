@@ -28,7 +28,7 @@
 
     let search = new Search(PlaceData, synonyms, {}, {
         language: "tr", 
-        algorithm: "levenshtein",
+        algorithm: ["levenshtein"],
         threshold: 0.7,
         debounceDelay: 300,
         suggestOnNoMatch: true,
