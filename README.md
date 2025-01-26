@@ -145,7 +145,7 @@ const search = new Search(data, synonyms, {},{
 
 ## Bechmakring
 ```js
-import Search from "./index.js";
+import Search from "kawesearch";
 
 const keywords = Array.from({ length: 1000000 }, (_, i) => ({
     name: `keyword${i + 1}`,
