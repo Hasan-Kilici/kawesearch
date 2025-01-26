@@ -21,7 +21,7 @@
 
     let search = new Search(PlaceData, synonyms,{
         language: "tr", 
-        algorithm: "jaro-winkler",
+        algorithm: ["jaro-winkler"],
         threshold: 0.4,
         debounceDelay: 300,
         customMessages: {
