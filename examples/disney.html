@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Home</title>
+</head>
+<body>
+    <input type="text" id="search" placeholder="Search for a disney charecter">
+    <div id="results"></div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/kawesearch@1.0.9/bundle.min.js"></script>
+<script>
+    const input = document.getElementById('search');
+
+    window.onload = async ()=>{
+        const response = await fetch('https://api.disneyapi.dev/character');
+        const data = await response.json();
+        console.log(data.data);
+        const engine = new Search(data.data, [], {}, {
+            language: "en",
+            algorithm: [
+                "levenshtein",
+                "soundex",
+                "metaphone",
+            ],
+            suggestOnNoMatch: false,
+            threshold: 0.5,
+            debounceDelay: 1,
+            timeout:2,
+            cacheTTL: 80000
+        });
+
+        input.addEventListener('input', ()=>{
+            console.log(input.value);
+            const startTime = performance.now();
+            engine.search(input.value).then((results)=>{
+                const endTime = performance.now();
+                const timeTaken = endTime - startTime;
+                console.log(`Search took ${timeTaken} milliseconds`);
+                document.getElementById('results').innerHTML = '';
+                results.forEach((result)=>{
+                    document.getElementById('results').innerHTML += `<div>${result.name}</div>`;
+                });
+            });
+        });
+    }
+</script>
+</html>
