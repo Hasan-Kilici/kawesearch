@@ -8,7 +8,7 @@ export default class Search {
         this.synonymUsageFrequency = synonymUsageFrequency || {};
         this.language = options.language || "en";
         this.options = {
-            algorithm: options.algorithm || "damerau-levenshtein",
+            algorithm: options.algorithm || ["levenshtein"],
             threshold: options.threshold || 0.8,
             suggestOnNoMatch: options.suggestOnNoMatch ?? true,
             suggestionThreshold: options.suggestionThreshold || 0.5,
@@ -16,11 +16,14 @@ export default class Search {
             customMessages: options.customMessages || {},
             debounceDelay: options.debounceDelay || 300,
             cacheSize: options.cacheSize || 100,
+            timeout: options.timeout || 5000,
+            cacheTTL: options.cacheTTL || 60000,
         };
         this._initializeMessages();
 
         this.index = this.createIndex(data);
         this.lruCache = new Map();
+        this.cacheExpiry = new Map();
         this.abortController = null;
     }
 
@@ -55,29 +58,64 @@ export default class Search {
         return result;
     }
 
+    generateTrigrams(text) {
+        const trigrams = [];
+        const sanitizedText = text.toLowerCase().replace(/\s+/g, '');
+        for (let i = 0; i < sanitizedText.length - 2; i++) {
+            trigrams.push(sanitizedText.substring(i, i + 3));
+        }
+        return trigrams;
+    }
+
     createIndex(data) {
-        return data.reduce((index, item) => {
-            index[item.id] = item;
-            return index;
-        }, {});
+        const invertedIndex = {};
+
+        data.forEach((item) => {
+            const searchableFields = [item.name, ...(item.tags || [])];
+            searchableFields.forEach((field) => {
+                const words = field.toLowerCase().split(/\s+/);
+                words.forEach((word) => {
+                    const normalizedWord = word.trim();
+                    if (!invertedIndex[normalizedWord]) {
+                        invertedIndex[normalizedWord] = new Set();
+                    }
+                    invertedIndex[normalizedWord].add(item.id);
+                });
+            });
+        });
+
+        return invertedIndex;
     }
 
     async search(query) {
         if (this.abortController) {
             this.abortController.abort();
         }
+
         this.abortController = new AbortController();
         const signal = this.abortController.signal;
 
-        return new Promise((resolve, reject) => {
+        const timeoutPromise = new Promise((_, reject) => {
             setTimeout(() => {
-                if (signal.aborted) return reject(new Error("Request aborted"));
+                reject(new Error("Zaman aşımına uğradı"));
+            }, this.options.timeout);
+        });
 
+        const searchPromise = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (signal.aborted) return reject(new Error("İşlem iptal edildi"));
                 this._performSearch(query)
                     .then(resolve)
                     .catch(reject);
             }, this.options.debounceDelay);
         });
+
+        try {
+            return await Promise.race([searchPromise, timeoutPromise]);
+        } catch (error) {
+            console.error("An error occurred during the search:", error);
+            throw error;
+        }
     }
 
     async _performSearch(query) {
@@ -93,10 +131,8 @@ export default class Search {
             const resolvedQuery = query.toLowerCase();
 
             return searchableFields.some((field) => {
-                if (!field) return false;
                 const resolvedField = field.toLowerCase();
-                const fieldWords = this._resolveSynonyms(resolvedField);
-                return fieldWords.some((word) => this._match(resolvedQuery, word));
+                return resolvedField.includes(resolvedQuery);
             });
         });
 
@@ -170,16 +206,23 @@ export default class Search {
         if (this.lruCache.size >= this.options.cacheSize) {
             const oldestKey = this.lruCache.keys().next().value;
             this.lruCache.delete(oldestKey);
+            this.cacheExpiry.delete(oldestKey);
         }
         this.lruCache.set(key, value);
+        this.cacheExpiry.set(key, Date.now() + this.options.cacheTTL);
     }
 
     _getFromCache(key) {
         const value = this.lruCache.get(key);
-        if (value !== undefined) {
+        const expiry = this.cacheExpiry.get(key);
+        if (value && Date.now() < expiry) {
             this.lruCache.delete(key);
             this.lruCache.set(key, value);
+            return value;
+        } else {
+            this.lruCache.delete(key);
+            this.cacheExpiry.delete(key);
+            return null;
         }
-        return value;
     }
 }
